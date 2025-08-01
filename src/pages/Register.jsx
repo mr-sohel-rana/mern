@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,7 +13,7 @@ const Register = () => {
 
   const submitHandle = async (e) => {
     e.preventDefault();
-    const formData = new FormData(); // ✅ Corrected case
+    const formData = new FormData(); 
     formData.append('name', name);
     formData.append('email', email);
     formData.append('password', password);
@@ -39,7 +39,7 @@ const Register = () => {
         style={{ maxWidth: '300px', margin: '0 auto', paddingTop: '10px', background: 'gray' }}
       >
         {/* Name Field */}
-        <div className="mb-3">
+        <div className="mb-10">
           <input
             name="name"
             type="text"

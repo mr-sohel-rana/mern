@@ -5,8 +5,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "../components/layout/Layout";
 import { useAuth } from "../context/authContext";
+import AdminMenus from "./AdminMenu";
 
-const Update = () => {
+const AdminUpdate = () => {
   const { userId } = useParams(); // Access the userId from the route params
   const navigate = useNavigate();
   const [auth, setAuth] = useAuth(); // Accessing auth context and setAuth function
@@ -18,15 +19,14 @@ const Update = () => {
   });
   const [photo, setPhoto] = useState(null); // State for new photo upload
   const [currentProfileImage, setCurrentProfileImage] = useState(""); // State for current profile image
-  const [loading, setLoading] = useState(false); // Loading state
 
   // Fetch user data when component mounts or userId changes
-  console.log(auth?.user?._id)
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/v1/single-user/${auth?.user?._id}`);
         const user = response.data.user || {};
+         
 
         // Set form data with fallback values if fields are undefined
         setFormData({
@@ -36,7 +36,7 @@ const Update = () => {
         });
 
         // Set current profile image or fallback to a placeholder if undefined
-        setCurrentProfileImage(user.photo || "/path/to/default-profile-image.jpg");
+        setCurrentProfileImage(user.photo || "");
       } catch (error) {
         toast.error(error.response?.data?.message || "Error fetching user");
       }
@@ -61,13 +61,6 @@ const Update = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.name || !formData.player) {
-      toast.error("Please fill out all required fields.");
-      return;
-    }
-
-    setLoading(true);
-
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       formDataToSend.append(key, formData[key]); // Append form data
@@ -79,11 +72,11 @@ const Update = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/updateUser/${auth?.user?._id}`,
+        `http://localhost:5000/api/v1/updateUser/${auth?.user?._id||req.user._id}`,
         formDataToSend,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "multipart/form-data", 
           },
         }
       );
@@ -102,17 +95,21 @@ const Update = () => {
       }));
 
       // Redirect to profile page after successful update
-      navigate("/dashboard/user/profile");
+      navigate("/dashboard/admin/profile");
     } catch (error) {
       toast.error(error.response?.data?.message || "Error updating user");
-    } finally {
-      setLoading(false); // Reset loading state
     }
   };
 
   return (
-    <Layout>
-      <form
+    <Layout className="container">
+        <div className="row">
+
+        <div className="md-col-4">
+    <AdminMenus />
+   </div>
+   <div className="md-col-8">
+   <form
         onSubmit={handleSubmit}
         style={{
           maxWidth: "300px",
@@ -124,7 +121,11 @@ const Update = () => {
         {/* Display profile image */}
         <div className="mb-3">
           <img
-            src={photo ? URL.createObjectURL(photo) : `http://localhost:5000/api/v1/single-image/${auth?.user?._id}`}
+            src={
+              photo
+                ? URL.createObjectURL(photo) // Show uploaded photo
+                : currentProfileImage || `http://localhost:5000/api/v1/single-image/${auth?.user?._id}` // Show current or default profile image
+            }
             alt="Profile"
             style={{ height: "120px", width: "120px", borderRadius: "50%" }}
           />
@@ -201,16 +202,18 @@ const Update = () => {
 
         {/* Submit button */}
         <div className="mb-3">
-          <button className="btn btn-success" type="submit" disabled={loading}>
-            {loading ? "Updating..." : "Update User"}
+          <button className="btn btn-success" type="submit">
+            Update User
           </button>
         </div>
       </form>
 
       {/* Toast notifications */}
       <ToastContainer />
+   </div>
+        </div>
     </Layout>
   );
 };
 
-export default Update;
+export default AdminUpdate;

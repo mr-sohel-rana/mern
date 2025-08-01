@@ -2,20 +2,20 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext"; // Import the context
 import Layout from "../components/layout/Layout";
-import Usermenu from "./UserMenu";
+import AdminMenus from "./AdminMenu";
 
-const Profile = () => {
+const AdminProfile = () => {
   const [auth] = useAuth(); // Access the auth context
   const [userData, setUserData] = useState(auth?.user || null); // Initial state from auth context
   const [imageError, setImageError] = useState(false); // To track image load errors
+  const [photo, setPhoto] = useState(null); // State for uploaded photo
 
   // Whenever the auth context changes, update userData
-  console.log(auth?.user)
   useEffect(() => {
     const fetchUser = async () => {
-      if (auth?.user?._id) {
+      if (auth?.user?.id) {
         try {
-          const response = await axios.get(`http://localhost:5000/api/v1/single-user/${auth.user._id}`);
+          const response = await axios.get(`http://localhost:5000/api/v1/single-user/${auth.user.id}`);
           setUserData(response.data.user); // Update userData with latest data from the server
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -45,15 +45,19 @@ const Profile = () => {
       <div className="container">
         <div className="row">
           <div className="col-md-3">
-            <Usermenu />
+            <AdminMenus />
           </div>
           <div className="col-md-9">
             <h1>{userData?.name ? `${userData.name}'s Profile` : 'Loading profile...'}</h1>
             <img
-              style={{ height: '120px', width: '120px', borderRadius: '50%' }}
-              src={imageError ? '/path/to/default-image.jpg' : `http://localhost:5000/api/v1/single-image/${auth?.user?._id}`}
+              src={
+                photo
+                  ? URL.createObjectURL(photo) // Show uploaded photo
+                  : userData?.photo || `http://localhost:5000/api/v1/single-image/${auth?.user?._id}` // Show current or default profile image
+              }
               alt="Profile"
-              onError={handleImageError} // If image fails to load, fallback to a default image
+              style={{ height: "120px", width: "120px", borderRadius: "50%" }}
+              onError={handleImageError} // Fallback to default image if there's an error
             />
             <h4>Name: {userData?.name}</h4>
             <h4>Email: {userData?.email}</h4>
@@ -65,4 +69,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default AdminProfile;

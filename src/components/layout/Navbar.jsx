@@ -2,11 +2,12 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 // import SearchInput from "./form/SearchInput";
-// import { useCart } from '../context/cart';
-// import { Badge } from 'antd';
+  import { useCart } from '../../context/cartContext';
+  import { Badge } from 'antd';
 
 const Navbar = () => {
   const [auth, setAuth] = useAuth();
+  const[cart]=useCart();
 
   useEffect(() => {
     // Log the auth object once the component mounts
@@ -79,7 +80,7 @@ const Navbar = () => {
               </li>
 
               <li className="nav-item">
-                <Link className="nav-link" to="/policy">product</Link>
+                <Link className="nav-link" to="/products">product</Link>
               </li>
 
               {!auth.user ? (
@@ -103,7 +104,7 @@ const Navbar = () => {
                       aria-expanded="false"
                     >
                       <img style={{height: "40px",width: "40px", borderRadius: "50%"}}
-                      src={`http://localhost:5000/api/v1/single-image/${auth?.user?.id}`}/>
+                      src={`http://localhost:5000/api/v1/single-image/${auth?.user?._id}`}/>
                       </Link>
 
                     <ul className="dropdown-menu">
@@ -119,9 +120,9 @@ const Navbar = () => {
               )}
 
               <li className="nav-item">
-                {/* <Badge count={cart?.length}> */}
+                <Badge count={cart?.length}> 
                   <Link className="nav-link" to="/cart">Cart</Link>
-                {/* </Badge> */}
+                 </Badge>  
               </li>
 
             </ul>

@@ -1,17 +1,19 @@
-import { useState, useContext, createContext, useEffect } from 'react';
+import { useState, useContext, createContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
 // AuthProvider Component
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
-    const data = localStorage.getItem('auth');
-    return data ? JSON.parse(data) : { user: null, token: '' };
+    const data = localStorage.getItem("auth");
+    return data ? JSON.parse(data) : { user: null, token: "" };
   });
 
   // Update localStorage whenever auth state changes
   useEffect(() => {
-    localStorage.setItem('auth', JSON.stringify(auth));
+    if (auth.user) {
+      localStorage.setItem("auth", JSON.stringify(auth));  // Save auth in localStorage if user exists
+    }
   }, [auth]);
 
   return (

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import {useAuth} from '../../src/context/authContext.jsx'
 
 const Usermenu = () => {
+  const [auth]=useAuth();
   return (
     <div className="container">
       <div className="row">
@@ -15,6 +17,14 @@ const Usermenu = () => {
               >
               Profile
               </NavLink>
+            </li>
+            <li> 
+            <NavLink 
+  to={`/dashboard/user/update/${auth?.user?.id}`} 
+  className={({ isActive }) => (isActive ? 'text-decoration-none active' : 'text-decoration-none')}
+>
+  Update
+</NavLink>
             </li>
             <li className="list-group-item">
               <NavLink 

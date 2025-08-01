@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -10,50 +10,49 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const [auth, setAuth] = useAuth();
 
   const submitHandle = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
+    if (!email || !password) {
+      toast.error('Please fill in both fields');
+      setLoading(false);
+      return;
+    }
+  
     try {
       const response = await axios.post('http://localhost:5000/api/v1/login', { email, password });
-
-      if (response.data && response.data.status === 'success') {
+  
+      console.log("Full login response:", response.data); // ✅ Debugging line
+  
+      if (response.data && response.data.message === 'Login successful') {
         toast.success('Login successful!');
-
-        const userData = response.data.user; // The user object returned from the API
-        const token = response.data.token;
-
-        // Ensure you're setting the correct user data and token
-        const authData = {
-          user: {
-            id: userData._id, // Using the correct ID here
-            name: userData.name,
-            email: userData.email, // Including email if needed
-            player: userData.player, // Including email if needed
-          },
-          token,
-        };
-
-        // Set the auth context with the user data and token
-        setAuth(authData);
-
-        // Save the auth data to localStorage, fallback to sessionStorage if quota exceeded
-        try {
-          localStorage.setItem('auth', JSON.stringify(authData));
-        } catch (error) {
-          if (error.name === 'QuotaExceededError') {
-            console.warn('LocalStorage quota exceeded, using sessionStorage instead.');
-            sessionStorage.setItem('auth', JSON.stringify(authData));
-          }
+  
+        const { user, token } = response.data;
+        if (!token) {
+          toast.error("Token missing from response!");
+          return;
         }
-
+  
+        const authData = {
+          user,
+          token,  
+        };
+  
+        setAuth((prev) => ({
+          ...prev,
+          user: authData.user,
+          token: authData.token,
+        }));
+  
+        localStorage.setItem('auth', JSON.stringify(authData.token));
+  
         setEmail('');
         setPassword('');
-
-        // Redirect after 1 second
+  
         setTimeout(() => {
           navigate('/');
         }, 1000);
@@ -67,6 +66,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <Layout>
